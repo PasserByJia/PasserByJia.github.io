@@ -1,5 +1,5 @@
 ---
-title: MIT 6.S081操作系统公开课
+title: MIT 6.S081公开课
 index: false
 icon: mdi:university-outline
 article: false
