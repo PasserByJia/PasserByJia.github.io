@@ -13,9 +13,9 @@ export default hopeTheme({
 
   iconAssets: "iconify",
 
-  logo: "https://theme-hope-assets.vuejs.press/logo.svg",
+  logo: "/assets/svg/logo.svg",
 
-  repo: "passerbyjia/passerbyjia",
+  repo: "PasserByJia/PasserByJia.github.io",
 
   docsDir: "src",
 

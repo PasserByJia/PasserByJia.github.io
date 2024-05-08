@@ -3,7 +3,8 @@ home: true
 layout: BlogHome
 icon: home
 title: 博客主页
-heroImage: https://theme-hope-assets.vuejs.press/logo.svg
+heroImage: /assets/svg/logo.svg
+bgImage: https://api.kdcc.cn
 heroText: Plus's NoteBook
 heroFullScreen: true
 tagline: 
@@ -33,7 +34,7 @@ projects:
     desc: 伙伴详细介绍
     link: https://你的伙伴链接
 
-  - icon: https://theme-hope-assets.vuejs.press/logo.svg
+  - icon: /assets/svg/logo.svg
     name: 自定义项目
     desc: 自定义详细介绍
     link: https://你的自定义链接
