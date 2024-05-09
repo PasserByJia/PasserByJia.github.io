@@ -1,6 +1,6 @@
 ---
 icon: code-bold
-date: 2024-05-07
+date: 2024-05-08
 category:
   - 操作系统
 tag:
@@ -48,3 +48,75 @@ $ make clean
 > [!important]
 >
 > ChatGPT 你还可以使用共享页面加速哪些其他 xv6 系统调用？请解释一下。
+
+### 实验操作
+
+进行实操前需要回答几个问题：
+
+1. usyscall这个结构体需要存在哪里
+2. 需要建立虚拟地址与物理地址的映射，物理地址要怎么获取？
+3. 初始化与释放需要做什么？
+
+#### step1 
+
+在 `proc.h`中声明一个usyscall结构体，用于存放共享页面。
+
+![image-20240509111735902](./assets/image-20240509111735902.png)
+
+#### step2 
+
+在(`kernel/proc.c`)中修改`allocproc`方法，仿照给`trapframe`为`p->usyscall` 分配具体的物理地址，并且将进程的pid 保存到这个结构体之中。
+
+```C
+  // Allocate a usyscall page
+  //这里的地址其实就是一个物理地址，是需要在用户页表中与逻辑地址进行映射的的地址
+  if((p->usyscall = (struct usyscall *)kalloc())==0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
+  p->usyscall->pid = p->pid;
+```
+
+#### step3
+
+在`(kernel/proc.c)`中修改`proc_pagetable`方法，仿照给`trapframe`新增映射关系，这里实验有要求许用户空间只读取页面的权限位，所以使用权限`PTE_R`与`PTE_U`
+
+```C
+  if(mappages(pagetable,USYSCALL,PGSIZE,(uint64)(p->usyscall), PTE_R | PTE_U) < 0){
+    uvmunmap(pagetable, USYSCALL, 1, 0);
+    uvmfree(pagetable, 0);
+    return 0;
+  }
+```
+
+#### step4
+
+在(`kernel/proc.c`)中修改`freeproc`与`proc_freepagetable`，在进程释放的时候将对应内存释放掉。
+
+`freeproc`中增加
+
+```C
+ if(p->usyscall)
+    kfree((void*)p->usyscall);
+  p->usyscall = 0;
+```
+
+`proc_freepagetable`中增加
+
+```C
+static void
+freeproc(struct proc *p)
+{
+  //新增代码 begin
+  if(p->usyscall)
+    kfree((void*)p->usyscall);
+  p->usyscall = 0;
+  //新增代码 end
+  if(p->trapframe)
+    kfree((void*)p->trapframe);
+  p->trapframe = 0;
+  .....省略
+}
+```
+
