@@ -1,7 +1,7 @@
 ---
 title: 课程
 index: false
-icon: setting-filled
+icon: ic:outline-class
 article: false
 category:
   - 目录

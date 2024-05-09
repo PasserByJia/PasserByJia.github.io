@@ -44,7 +44,7 @@ export default hopeTheme({
       // Evernote: "https://example.com",
       // Facebook: "https://example.com",
       // Flipboard: "https://example.com",
-      // Gitee: "https://example.com",
+       Gitee: "https://gitee.com/jhcoding",
        GitHub: "https://github.com/PasserByJia",
       // Gitlab: "https://example.com",
       // Gmail: "mailto:info@example.com",
@@ -90,10 +90,14 @@ export default hopeTheme({
 
     // 启用之前需安装 @waline/client
     // 警告: 这是一个仅供演示的测试服务，在生产环境中请自行部署并使用自己的服务！
-    // comment: {
-    //   provider: "Waline",
-    //   serverURL: "https://waline-comment.vuejs.press",
-    // },
+    comment: {
+      provider: "Giscus",
+      comment: true, //启用评论功能
+      repo: "PasserByJia/BlogGiscus", //远程仓库
+      repoId: "R_kgDOL5RYNQ", //对应自己的仓库Id
+      category: "Announcements",
+      categoryId: "DIC_kwDOL5RYNc4CfPsP" //对应自己的分类Id
+    },
 
     components: {
       components: ["Badge", "VPCard"],

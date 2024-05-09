@@ -1,7 +1,7 @@
 ---
 title: XV6
 index: false
-icon: setting-filled
+icon: uiw:linux
 article: false
 category:
   - 目录

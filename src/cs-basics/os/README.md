@@ -1,7 +1,7 @@
 ---
 title: 操作系统
 index: false
-icon: eos-icons:system-group 
+icon: cib:ubuntu
 article: false
 category:
   - 目录

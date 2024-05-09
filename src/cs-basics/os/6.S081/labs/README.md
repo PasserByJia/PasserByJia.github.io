@@ -1,7 +1,7 @@
 ---
 title: 实验
 index: false
-icon: setting-filled
+icon: icomoon-free:lab
 article: false
 category:
   - 目录
