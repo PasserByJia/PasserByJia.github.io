@@ -118,17 +118,14 @@ freeproc(struct proc *p)
 `proc_freepagetable`中增加
 
 ```c
-static void
-freeproc(struct proc *p)
+void
+proc_freepagetable(pagetable_t pagetable, uint64 sz)
 {
-  //新增代码 begin
-  if(p->usyscall)
-    kfree((void*)p->usyscall);
-  p->usyscall = 0;
-  //新增代码 end
-  if(p->trapframe)
-    kfree((void*)p->trapframe);
-  p->trapframe = 0;
-  .....省略
+  //为什么这里不释放会导致panic: freewalk: leaf
+  uvmunmap(pagetable, USYSCALL, 1, 0); //新增行
+  uvmunmap(pagetable, TRAMPOLINE, 1, 0);
+  uvmunmap(pagetable, TRAPFRAME, 1, 0);
+  uvmfree(pagetable, sz);
 }
+
 ```
