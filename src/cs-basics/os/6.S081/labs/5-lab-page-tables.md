@@ -172,7 +172,7 @@ init: starting sh
 
 你的代码可能会显示与上面不同的物理地址。但是这些条目和虚拟地址应该是相同的。
 
-一些提示
+一些提示：
 
 - 你可以在 `kernel/vm.c`使用 `vmprint()`
 - 使用文件 `kernel/riscv.h` 末尾的宏。
