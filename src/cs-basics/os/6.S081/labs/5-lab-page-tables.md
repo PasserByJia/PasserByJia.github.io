@@ -174,7 +174,7 @@ init: starting sh
 
 一些提示：
 
-- 你可以在 `kernel/vm.c`使用 `vmprint()`
+- 你可以在 将`vmprint()`放在`kernel/vm.c`中 
 - 使用文件 `kernel/riscv.h` 末尾的宏。
 - 方法`freewalk`也许会有启发。
 - 在 `kernel/defs.h` 中定义 `vmprint` 的原型，这样你就可以从 `exec.c` 中调用它。
@@ -187,3 +187,66 @@ init: starting sh
 ### 实验操作
 
 #### step1
+
+在vmprint中，参照freewalk实现。
+
+```c
+//提前将点保存好，可以减少写if else
+static char *point[] = {
+  [0] = "..",
+  [1] = ".. ..",
+  [2] = ".. .. ..",
+};
+
+void vmprint(pagetable_t pagetable,uint64 level){
+  //打印最顶层的页表信息
+  if(level == 1){
+    printf("page table %p\n",pagetable);
+  }
+  //遍历页表项 2^9 = 512 所以一个页表中应该有512个页表项
+  for(int i = 0;i<512;i++){
+    pte_t pte = pagetable[i];
+    if(pte & PTE_V){
+      //由方法名可以得出这个child其实就是pte对应的物理地址
+      uint64 child = PTE2PA(pte);
+      printf("%s%d: pte %p pa %p\n",point[level-1],i,pte,child);
+      //页表树层级总共就三层，再继续递归会导致出错
+      if(level!=3){
+        vmprint((pagetable_t)child,level+1);
+      }
+    } else if(pte & PTE_V){
+      panic("vmprint: leaf");
+    }
+  }
+}
+```
+
+#### step2
+
+在exec.c中调用vmprint
+
+```c
+  //...省略
+  oldpagetable = p->pagetable;
+  p->pagetable = pagetable;
+  p->sz = sz;
+  p->trapframe->epc = elf.entry;  // initial program counter = main
+  p->trapframe->sp = sp; // initial stack pointer
+  proc_freepagetable(oldpagetable, oldsz);
+  //新增代码begin
+  //只打印第一个进程的页表
+  if(p->pid == 1){
+    vmprint(p->pagetable,1);
+  }
+  //新增代码end
+  return argc; // this ends up in a0, the first argument to main(argc, argv)
+  //...省略
+```
+
+#### 实验结果
+
+![image-20240510220242530](assets/image-20240510220242530.png)
+
+#### 总结
+
+实验还是比较容易的，需要注意的是对页表树层级的处理。
