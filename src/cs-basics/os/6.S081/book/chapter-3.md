@@ -7,7 +7,6 @@ tag:
   - MIT
   - XV6
   - riscv
-  - C  
 ---
 
 # Chapter 3  页表(Page tables)
@@ -158,3 +157,4 @@ Program Header:
 4. 修改 xv6，使得当用户程序解引用空指针时，它将收到一个异常。也就是说，修改 xv6 以便用户程序不会映射虚拟地址 0。
 5. Unix 的 exec 实现传统上会对 shell 脚本进行特殊处理。如果要执行的文件以文本 #! 开头，则第一行被视为要运行的解释该文件的程序。例如，如果 exec 被调用来运行 myprog arg1，而 myprog 的第一行是 #!/interp，则 exec 将以命令行 /interp myprog arg1 运行 /interp。在 xv6 中实现对此约定的支持。
 6. 为内核实现地址空间随机化。
+
