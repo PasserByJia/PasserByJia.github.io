@@ -54,7 +54,7 @@ tag:
 
   > ra 是return address的缩写，返回地址。
   >
-  >  34:	612080e7          	jalr	1554(ra) # 642 <printf>
+  >  34:	612080e7          	jalr	1554(ra) # 642 `<printf>`
   >
   > jalr 做两步操作：
   >
