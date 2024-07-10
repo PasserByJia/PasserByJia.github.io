@@ -88,7 +88,7 @@ tag:
 
 ## Backtrace ([moderate](https://pdos.csail.mit.edu/6.S081/2022/labs/guidance.html))
 
-## 实验要求翻译
+### 实验要求翻译
 
 对于调试来说，拥有一个回溯（backtrace）通常是非常有用的：这是一个在错误发生点之上的堆栈中函数调用的列表。为了帮助生成回溯，编译器生成机器代码，该代码在堆栈上维护与当前调用链中每个函数相对应的堆栈帧。每个堆栈帧包含返回地址和一个指向调用者堆栈帧的“帧指针”。寄存器`s0`包含指向当前堆栈帧的指针（实际上它指向堆栈上保存的返回地址的地址加上8）。你的`backtrace`应该使用帧指针来遍历堆栈，并打印每个堆栈帧中保存的返回地址。
 
@@ -146,9 +146,9 @@ tag:
 
 一旦你的 `backtrace` 工作正常，从 `kernel/printf.c` 中的 `panic` 调用它，以便在内核崩溃时看到内核的回溯信息。
 
-## 实验操作
+### 实验操作
 
-### step1
+#### step1
 
 在`kernel/defs.h`中增加声明：
 
@@ -160,7 +160,7 @@ void            printfinit(void);
 void            backtrace(); //新增代码
 ```
 
-### step2
+#### step2
 
 在`kernel/riscv.h`增加如下代码：
 
@@ -174,7 +174,7 @@ r_fp()
 }
 ```
 
-### step3
+#### step3
 
 在`kernel/print.c`编写`backtrace方法`
 
@@ -202,7 +202,7 @@ backtrace(){
 
 尝试使用`PGROUNDDOWN`地址来控制循环，最后总会出现一个多余的地址输出，而改用 `PGROUNDUP`后，输出结果是正确的。
 
-### step4
+#### step4
 
 在`kernel/sysproc.c`中的`sys_sleep`中增加`backtrace`的调用。
 
