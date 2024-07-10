@@ -1,6 +1,6 @@
 ---
 icon: icon-park-outline:paragraph-round
-date: 2024-06-5
+date: 2024-06-05
 category:
   - 操作系统
 tag:
