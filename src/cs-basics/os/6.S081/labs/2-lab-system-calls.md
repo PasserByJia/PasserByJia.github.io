@@ -9,7 +9,7 @@ tags:
   - riscv
   - XV6
 ---
-# System Calls
+# Lab 2: System Calls
 在上一个实验中，你使用系统调用编写了一些实用程序。在这个实验中，你将向 xv6 添加一些新的系统调用，这将帮助你理解它们的工作原理，并让你接触到 xv6 内核的一些内部机制。在后续的实验中，你将添加更多的系统调用。
 
 > [!warning]
@@ -81,3 +81,133 @@ $
 4. **修改 `fork()`（参见 `kernel/proc.c`）以将跟踪掩码从父进程复制到子进程**。
     
 5. **修改 `kernel/syscall.c` 中的 `syscall()` 函数以打印跟踪输出**。你需要添加一个系统调用名称数组来进行索引。
+### 实验代码
+#### usys.pl/user
+```pl
+entry("uptime");
+// ======add code begin========
+entry("trace");
+//===========end===============
+```
+#### user.h/user
+```c
+int sleep(int);
+int uptime(void);
+// ======add code begin========
+int trace(int);
+//===========end===============
+```
+#### syscall.h/kernel
+```c
+#define SYS_mkdir  20
+#define SYS_close  21
+// ======add code begin========
+#define SYS_trace  22
+//===========end===============
+```
+#### proc.h/kernel
+```c
+int xstate;                  // Exit status to be returned to parent's wait
+  int pid;                     // Process ID
+  // ======add code begin========
+  int trace_code;              // The Trace System Call Number
+  //===========end===============
+  // wait_lock must be held when using this:
+  struct proc *parent;         // Parent process
+```
+#### sysproc.c/kernel
+```c
+uint64
+sys_trace(void)
+
+{
+  int trace_code;
+  argint(0, &trace_code);
+  struct proc *p = myproc();
+  p->trace_code = trace_code;
+  return 0;
+}
+```
+#### proc.c/kernel
+```c
+int
+fork(void)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *p = myproc();
+  // Allocate process.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+  // Copy user memory from parent to child.
+  if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+  }
+  np->sz = p->sz;
+  // copy saved user registers.
+  *(np->trapframe) = *(p->trapframe);
+  // ======add code begin========
+  // copy trace code
+  np->trace_code = p->trace_code;
+  //===========end===============
+  // Cause fork to return 0 in the child.
+  np->trapframe->a0 = 0;
+  ......
+```
+
+#### syscall.c/kernel
+```c
+
+#include "syscall.h"
+#include "defs.h"
+// ======add code begin========
+const char* syscall_names[] = {"fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup","getpid","sbrk","sleep","uptime","open","write","mknod","unlink","link","mkdir","close","trace"
+};
+//===========end===============
+
+....
+
+extern uint64 sys_link(void);
+extern uint64 sys_mkdir(void);
+extern uint64 sys_close(void);
+// ======add code begin========
+extern uint64 sys_trace(void);
+//===========end===============
+
+....
+
+[SYS_link]    sys_link,
+[SYS_mkdir]   sys_mkdir,
+[SYS_close]   sys_close,
+// ======add code begin========
+[SYS_trace]   sys_trace,
+//===========end===============
+};
+
+void
+syscall(void)
+{
+  int num;
+  struct proc *p = myproc();
+  num = p->trapframe->a7;
+  if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    // Use num to lookup the system call function for num, call it,
+    // and store its return value in p->trapframe->a0
+    p->trapframe->a0 = syscalls[num]();
+    // ======add code begin========
+    if((p->trace_code & (1 << num)) != 0){
+      printf("%d: syscall %s -> %d\n",
+            p->pid, syscall_names[num-1], p->trapframe->a0);
+    }
+    //===========end===============
+  } else {
+    printf("%d %s: unknown sys call %d\n",
+            p->pid, p->name, num);
+    p->trapframe->a0 = -1;
+  }
+}
+
+```
