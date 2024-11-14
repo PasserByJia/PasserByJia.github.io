@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "1c197e139f0217d3",
+        "id": "f98f4a095207abe4",
         "type": "tabs",
         "children": [
           {
-            "id": "bbd5b4b81a0d0454",
+            "id": "5f65739119890574",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -162,10 +162,13 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "bbd5b4b81a0d0454",
+  "active": "5f65739119890574",
   "lastOpenFiles": [
-    "src/cs-basics/os/6.S081/labs/1-lab-utils.md",
+    "Pasted image 20241114114333.png",
     "src/cs-basics/os/6.S081/labs/2-lab-system-calls.md",
+    "src/cs-basics/os/6.S081/labs/1-lab-utils.md",
+    "Pasted image 20241114144452.png",
+    "Pasted image 20241114144453.png",
     "src/cs-basics/os/6.S081/labs/5-lab-page-tables.md",
     "src/cs-basics/os/6.S081/labs/6-lab-traps.md",
     "论文展示操作手册.md",
@@ -176,8 +179,6 @@
     "Pasted image 20240720173258.png",
     "Pasted image 20240720173140.png",
     "Pasted image 20240720173053.png",
-    "Pasted image 20240720172957.png",
-    "Pasted image 20240720172932.png",
     "未命名",
     "src/cs-basics/os/6.S081/xv6/code-kernel-proc.md",
     "src/cs-basics/os/6.S081/xv6/README.md",

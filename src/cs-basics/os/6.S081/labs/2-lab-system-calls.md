@@ -73,13 +73,9 @@ $
 ### 一些提示：
 
 1. **将 `$U/_trace` 添加到 `Makefile` 中的 `UPROGS`**。
-    
 2. **运行 `make qemu`，你会看到编译器无法编译 `user/trace.c`，因为用户空间的系统调用存根还不存在**：向 `user/user.h` 添加系统调用的原型，向 `user/usys.pl` 添加存根，并向 `kernel/syscall.h` 添加系统调用号。`Makefile` 调用 `user/usys.pl` 脚本，该脚本生成 `user/usys.S`，即实际的系统调用存根，它们使用 RISC-V 的 `ecall` 指令过渡到内核。一旦你修复了编译问题，运行 `trace 32 grep hello README`；它将失败，因为你还没有在内核中实现系统调用。
-    
 3. **在 `kernel/sysproc.c` 中添加一个 `sys_trace()` 函数，通过在 `proc` 结构（参见 `kernel/proc.h`）中记住其参数来实现新的系统调用**。用于从用户空间检索系统调用参数的函数在 `kernel/syscall.c` 中，你可以在 `kernel/sysproc.c` 中看到它们的使用示例。
-    
 4. **修改 `fork()`（参见 `kernel/proc.c`）以将跟踪掩码从父进程复制到子进程**。
-    
 5. **修改 `kernel/syscall.c` 中的 `syscall()` 函数以打印跟踪输出**。你需要添加一个系统调用名称数组来进行索引。
 ### 实验代码
 #### usys.pl/user
@@ -210,4 +206,161 @@ syscall(void)
   }
 }
 
+```
+
+##  Sysinfo ([moderate](https://pdos.csail.mit.edu/6.S081/2020/labs/guidance.html))
+
+> [!important]
+>在这个任务中，你将添加一个系统调用 `sysinfo`，用于收集有关运行系统的信息。该系统调用接受一个参数：指向 `struct sysinfo` 的指针（参见 `kernel/sysinfo.h`）。内核应填充该结构的字段：`freemem` 字段应设置为可用内存的字节数，`nproc` 字段应设置为状态不是 `UNUSED` 的进程数。我们提供了一个测试程序 `sysinfotest`；如果你通过了这个任务，它将打印 "sysinfotest: OK"。
+
+
+1. **将 `$U/_sysinfotest` 添加到 `Makefile` 中的 `UPROGS`**。
+2. **运行 `make qemu`；`user/sysinfotest.c` 将无法编译**。添加系统调用 `sysinfo`，遵循与上一个任务相同的步骤。要在 `user/user.h` 中声明 `sysinfo()` 的原型，你需要预先声明 `struct sysinfo` 的存在：
+```c
+struct sysinfo;
+int sysinfo(struct sysinfo *);
+```
+	一旦你修复了编译问题，运行 `sysinfotest`；它将失败，因为你还没有在内核中实现系统调用。
+3. **`sysinfo` 需要将 `struct sysinfo` 复制回用户空间**；参见 `sys_fstat()`（`kernel/sysfile.c`）和 `filestat()`（`kernel/file.c`）以了解如何使用 `copyout()` 完成此操作的示例。
+4. **要收集可用内存量，请在 `kernel/kalloc.c` 中添加一个函数**。
+5. **要收集进程数，请在 `kernel/proc.c` 中添加一个函数**。
+
+### 实验代码
+#### usys.pl/user
+
+```pl
+
+......
+
+entry("uptime");
+entry("trace");
+// ======add code begin========
+entry("sysinfo");
+//===========end===============
+```
+#### user.n/user
+
+```c
+.....
+
+char* sbrk(int);
+int sleep(int);
+int uptime(void);
+int trace(int);
+// ======add code begin========
+int sysinfo(struct sysinfo *);
+//===========end===============
+.....
+```
+#### syscall.h/kernel
+
+```c
+....
+#define SYS_close  21
+#define SYS_trace  22
+// ======add code begin========
+#define SYS_sysinfo 23
+//===========end===============
+```
+#### defs.h/kernel
+
+```c
+
+......
+
+// kalloc.c
+void*           kalloc(void);
+void            kfree(void *);
+void            kinit(void);
+// ======add code begin========
+int             countMem(void);
+//===========end===============
+
+......
+
+int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
+int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
+void            procdump(void);
+// ======add code begin========
+int             countProcess(void);
+//===========end===============
+
+......
+
+```
+#### syscall.c
+
+```c
+
+......
+
+extern uint64 sys_close(void);
+extern uint64 sys_trace(void);
+// ======add code begin========
+extern uint64 sys_sysinfo(void);
+//===========end===============
+  
+......
+
+[SYS_close]   sys_close,
+[SYS_trace]   sys_trace,
+// ======add code begin========
+[SYS_sysinfo] sys_sysinfo,
+//===========end===============
+};
+
+......
+
+```
+#### kalloc.c/kernel
+
+```c
+int countMem(void){
+  struct run *r;
+  int size = 0;
+  acquire(&kmem.lock);
+  r = kmem.freelist;
+  while (r)
+  {
+    size += PGSIZE;
+    r = r->next;
+  }
+  release(&kmem.lock);
+  return size;
+}
+```
+#### proc.c/kernel
+
+```c
+int countProcess(void){
+  int count = 0;
+  struct proc *p;
+  for(p = proc; p < &proc[NPROC]; p++){
+    if(p->state != UNUSED)
+    count++;
+  }
+  return count;
+}
+```
+#### sysproc.c
+
+```c
+......
+#include "proc.h"
+#include "sysinfo.h"
+
+......
+
+uint64
+sys_sysinfo(void){
+  struct proc *p = myproc();
+  struct sysinfo si;
+  uint64 info;
+  argaddr(0,&info);
+  si.freemem = countMem();
+  si.nproc = countProcess();
+  if(copyout(p->pagetable, info, (char *)&si, sizeof(si)) < 0)
+      return -1;
+  return 0;
+}
 ```
