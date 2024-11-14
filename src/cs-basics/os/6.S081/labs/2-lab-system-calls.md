@@ -288,7 +288,7 @@ int             countProcess(void);
 ......
 
 ```
-#### syscall.c
+#### syscall.c/kernel
 
 ```c
 
@@ -342,7 +342,7 @@ int countProcess(void){
   return count;
 }
 ```
-#### sysproc.c
+#### sysproc.c/kernel
 
 ```c
 ......
