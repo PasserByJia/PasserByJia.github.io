@@ -213,7 +213,7 @@ syscall(void)
 > [!important]
 >在这个任务中，你将添加一个系统调用 `sysinfo`，用于收集有关运行系统的信息。该系统调用接受一个参数：指向 `struct sysinfo` 的指针（参见 `kernel/sysinfo.h`）。内核应填充该结构的字段：`freemem` 字段应设置为可用内存的字节数，`nproc` 字段应设置为状态不是 `UNUSED` 的进程数。我们提供了一个测试程序 `sysinfotest`；如果你通过了这个任务，它将打印 "sysinfotest: OK"。
 
-
+### 一些提示：
 1. **将 `$U/_sysinfotest` 添加到 `Makefile` 中的 `UPROGS`**。
 2. **运行 `make qemu`；`user/sysinfotest.c` 将无法编译**。添加系统调用 `sysinfo`，遵循与上一个任务相同的步骤。要在 `user/user.h` 中声明 `sysinfo()` 的原型，你需要预先声明 `struct sysinfo` 的存在：
 ```c
