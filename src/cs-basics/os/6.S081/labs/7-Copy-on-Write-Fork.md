@@ -14,7 +14,7 @@ tags:
 操作系统可以通过页表硬件实现的众多巧妙技巧之一是对用户空间堆内存的延迟分配（lazy allocation）。Xv6应用程序通过`sbrk()`系统调用向内核请求堆内存。在我们提供的内核中，`sbrk()`会分配物理内存并将其映射到进程的虚拟地址空间。对于大型请求，内核分配和映射内存可能需要很长时间。例如，1GB的内存由262,144个4096字节的页面组成；即使每个分配操作都很廉价，但如此大量的分配操作仍然非常耗时。此外，一些程序分配的内存比实际使用的要多（例如，用于实现稀疏数组），或者提前分配内存但并未立即使用。为了在这些情况下让`sbrk()`更快地完成，复杂的内核会采用延迟分配用户内存的方式。也就是说，`sbrk()`不会立即分配物理内存，而是只记住哪些用户地址被分配，并在用户页表中将这些地址标记为无效。当进程首次尝试使用任何延迟分配的内存页面时，CPU会生成一个页错误（page fault），内核通过分配物理内存、将其清零并映射来处理这个错误。在这个实验中，你将向xv6添加这种延迟分配功能。
 
 > [!warning]
-在开始编写代码之前，请阅读xv6书籍的第4章（特别是4.6节），以及你可能需要修改的相关文件：
+>在开始编写代码之前，请阅读xv6书籍的第4章（特别是4.6节），以及你可能需要修改的相关文件：
 > kernel/trap.c   kernel/vm.c    kernel/sysproc.c
 
 要开始实验，首先切换到 `lazy` 分支。按照以下步骤操作：
@@ -59,7 +59,7 @@ sys_sbrk(void)
 =4462f4546ac1e555&utm_campaign=A203&utm_source=bisem&utm_medium=search&ytag=ucloud_4462f4546ac1e555_A203_bisem_search&msclkid=63adcb4a831f1d36fb0bac350e1fc9a9
 }
 ```
-![[Pasted image 20250108213716.png]]
+![image-20240509111735902](attachments/Pasted_image_20250108213716.png)
 ##  Lazy allocation ([moderate](https://pdos.csail.mit.edu/6.S081/2020/labs/guidance.html))
 
 > [!important]
@@ -245,4 +245,4 @@ walkaddr(pagetable_t pagetable, uint64 va)
   return pa;
 }
 ```
-![[./attachments/Pasted image 20250111115236.png]]
+![image-20240509111735902](./attachments/Pasted_image_20250111115236.png)
