@@ -15,9 +15,7 @@ tags:
 
 > [!warning]
 在开始编写代码之前，请阅读xv6书籍的第4章（特别是4.6节），以及你可能需要修改的相关文件：
->- kernel/trap.c
->- kernel/vm.c
->- kernel/sysproc.c
+> kernel/trap.c   kernel/vm.c    kernel/sysproc.c
 
 要开始实验，首先切换到 `lazy` 分支。按照以下步骤操作：
 ```bash
@@ -247,4 +245,4 @@ walkaddr(pagetable_t pagetable, uint64 va)
   return pa;
 }
 ```
-![[Pasted image 20250111115236.png]]
+![[./attachments/Pasted image 20250111115236.png]]
