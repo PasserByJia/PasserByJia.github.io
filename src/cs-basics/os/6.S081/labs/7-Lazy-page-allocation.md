@@ -1,6 +1,6 @@
 ---
 icon: code-bold
-date: 2024-12-25
+date: 2025-01-08
 category:
   - 操作系统
 tags:
@@ -41,7 +41,7 @@ panic: uvmunmap: not mapped
 ```
 “`usertrap(): ...`” 消息来自 `trap.c` 中的用户陷阱处理程序；它捕获到了一个不知道如何处理的异常。请确保你理解为什么会出现此页错误。“`stval=0x0..04008`” 表示导致页错误的虚拟地址是 `0x4008`。
 ### 实验步骤
-修改`kernel/sysproc.c`中的`sys_sbrk(void)`fangfa
+修改`kernel/sysproc.c`中的`sys_sbrk(void)`方法
 ```c
 uint64
 sys_sbrk(void)
@@ -56,7 +56,6 @@ sys_sbrk(void)
   // if(growproc(n) < 0)
   //   return -1;
   return addr;
-=4462f4546ac1e555&utm_campaign=A203&utm_source=bisem&utm_medium=search&ytag=ucloud_4462f4546ac1e555_A203_bisem_search&msclkid=63adcb4a831f1d36fb0bac350e1fc9a9
 }
 ```
 ![image-20240509111735902](attachments/Pasted_image_20250108213716.png)
@@ -196,6 +195,29 @@ $
 ```
 
 ### 实验步骤
+修改`kernel/sysproc.c`
+```c
+uint64
+
+sys_sbrk(void)
+{
+  int addr;
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  addr = myproc()->sz;
+  if(n>0){
+    myproc()->sz += n;
+  }else{
+    if(addr + n < 0){
+      return -1;
+    }
+    myproc()->sz = uvmdealloc(myproc()->pagetable, addr, addr + n);
+  }
+  return addr;
+}
+```
+
 修改`kernel/proc.c`的`is_lazy_alloc_va`方法
 ```c
 // to check if the va is in the lazy allocate range
